@@ -1,59 +1,70 @@
 #include "graphics/window.h"
 #include "graphics/shader.h"
-#include "util/fileutils.h"	
+#include "util/fileutils.h"
+#include "graphics/buffers/buffer.h"
+#include "graphics/buffers/indexbuffer.h"
+#include "graphics/buffers/vertexarray.h"
+
+
+#include <cmath>
+#include <glm/gtc/matrix_transform.hpp>
+#include <memory>
 
 using namespace bane;
+
+// TODO:
+// -Implementar sistema de buffers
+// -Renderer como dios manda
+// -Limpiar el codigo <- XD
+// -Hacer un sistema de capas para poder integrar ImGui correctamente
+// -Introducir un build system (premake o Cmake ?)
 
 int main() {
 	Window window("Title", 800, 600);
 
 	GLfloat vertices[] = {
-		 0.5f,	 0.5f, 0.0f,
-		 0.5f,	-0.5f, 0.0f,
-		-0.5f,  -0.5f, 0.0f,
-		-0.5f,   0.5f, 0.0f
+		0.0f, 0.0f, 0.0f,
+		0.5f, 0.0f, 0.0f,
+		0.5f, 0.5f, 0.0f,
+		0.0f, 0.5f, 0.0f
 	};
 
-	GLuint indices[] = {
-		0, 1, 3,
-		1, 2, 3
+	GLushort indices[] = {
+		0, 1, 2,
+		0, 2, 3
 	};
 
-	GLuint VBO; // vertex buffer object
-	glGenBuffers(1, &VBO);
-
-	GLuint VAO; // vertex array object
-	glGenVertexArrays(1, &VAO);
-
-	GLuint EBO; // element buffer object
-	glGenBuffers(1, &EBO);
-
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	GLfloat colors[] = {
+		1.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	};
+	
+	VertexArray sprite1;
+	IndexBuffer ibo(indices, 6);
+	sprite1.addBuffer(new Buffer(vertices, 3 * 4, 3), 0);
+	sprite1.addBuffer(new Buffer(colors, 4 * 4, 3), 1);
 
 	Shader shader("src/shaders/vertexShader.glsl", "src/shaders/fragmentShader.glsl");
 	shader.enable();
+
+	glm::mat4 orthographic = glm::ortho(-10.0f, 10.0f, -7.5f, 7.5f, -1.0f, 1.0f);
+	shader.setUniformMat4("pr_matrix", orthographic);
 
 	while (!window.closed()) {
 		window.update();
 		window.clear();
 
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
+		sprite1.bind();
+		ibo.bind();
+
+		glDrawElements(GL_TRIANGLES, ibo.getCount(), GL_UNSIGNED_SHORT, 0);
 
 		window.render();
 	}
 
 	shader.disable();
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
+	sprite1.unbind();
+	ibo.unbind();
 }

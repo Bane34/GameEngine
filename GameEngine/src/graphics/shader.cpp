@@ -67,4 +67,28 @@ namespace bane {
 	void Shader::disable() const {
 		glUseProgram(0);
 	}
+
+	void Shader::setUniform1f(const char* name, float n) const {
+		glUniform1f(getUniformLocation(name), n);
+	}
+
+	void Shader::setUniform1i(const char* name, int n) const {
+		glUniform1i(getUniformLocation(name), n);
+	}
+
+	void Shader::setUniformVec2f(const char* name, const glm::fvec2& vec2) const {
+		glUniform2f(getUniformLocation(name), vec2.x, vec2.y);
+	}
+
+	void Shader::setUniformVec3f(const char* name, const glm::fvec3& vec3) const {
+		glUniform3f(getUniformLocation(name), vec3.x, vec3.y, vec3.z);
+	}
+
+	void Shader::setUniformVec4f(const char* name, const glm::fvec4& vec4) const {
+		glUniform4f(getUniformLocation(name), vec4.x, vec4.y, vec4.z, vec4.w);
+	}
+
+	void Shader::setUniformMat4(const char* name, const glm::mat4& mat4) const {
+		glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &mat4[0][0]);
+	}
 }

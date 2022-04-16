@@ -54,22 +54,16 @@
     <ClInclude Include="src\util\fileutils.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="src\math\maths.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="src\math\vec2.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="src\math\math_functions.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
     <ClInclude Include="src\graphics\shader.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="src\math\vec3.h">
+    <ClInclude Include="src\graphics\buffers\vertexarray.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="src\math\vec4.h">
+    <ClInclude Include="src\graphics\buffers\indexbuffer.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\buffers\buffer.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
@@ -101,19 +95,19 @@
     <ClCompile Include="imgui\imgui.cpp">
       <Filter>Archivos de origen\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\math\vec2.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
     <ClCompile Include="src\graphics\shader.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="src\util\fileutils.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="src\math\vec3.cpp">
+    <ClCompile Include="src\graphics\buffers\indexbuffer.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="src\math\vec4.cpp">
+    <ClCompile Include="src\graphics\buffers\vertexarray.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\buffers\buffer.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>

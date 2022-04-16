@@ -7,21 +7,15 @@ namespace bane {
 	double Window::m_MouseY;
 	GLboolean Window::drawMode = GL_FALSE;
 
-	void error_callback(int error, const char* description) {
-		fprintf(stderr, "Error: %s\n", description);
-	}
-
-	void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-		glViewport(0, 0, width, height);
-	}
-
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 		Window* win = (Window*)glfwGetWindowUserPointer(window);
 
 		win->m_Keys[key] = action != GLFW_RELEASE;
+		std::function<void()> f;
 
-		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-			glfwSetWindowShouldClose(window, true);
+		if ((f = win->callbacks[key]) && action == GLFW_PRESS) {
+			f();
+		}
 		else if (key == GLFW_KEY_A && action == GLFW_PRESS) {
 			if (win->drawMode)
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -32,7 +26,7 @@ namespace bane {
 		}
 	}
 
-	void mouse_callback(GLFWwindow* window, int button, int action, int mods){
+	void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
 		Window* win = (Window*)glfwGetWindowUserPointer(window);
 
 		win->m_Buttons[button] = action != GLFW_RELEASE;
@@ -44,22 +38,13 @@ namespace bane {
 		win->m_MouseY = ypos;
 	}
 
-	void joystick_callback(int jid, int event){
-		if (event == GLFW_CONNECTED)
-			std::cout << "Gamepad connected\n";
-		else if (event == GLFW_DISCONNECTED)
-			std::cout << "Gamepad disconnected\n";
-
-		int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
-		std::cout << present << "\n";
-	}
-
 	Window::Window(const char* title, int width, int height) {
 		m_Title = title;
 		m_Width = width;
 		m_Height = height;
 
 		init();
+		initImGui();
 	}
 
 	Window::~Window() {
@@ -67,7 +52,7 @@ namespace bane {
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
-		
+
 		// CLEAN UP GLFW //
 		glfwDestroyWindow(m_Window);
 		glfwTerminate();
@@ -75,7 +60,7 @@ namespace bane {
 
 	void Window::update() {
 		glfwPollEvents(); // Poll events
-
+		
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -85,16 +70,19 @@ namespace bane {
 	}
 
 	void Window::clear() const {
-		glClearColor(0.2f, 0.3f, 0.1f, 1.f);
+		ImGui::Render();
+		glClearColor(0.2f, 0.1f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void Window::render() {
-		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 		glfwSwapBuffers(m_Window);
 		glfwSwapInterval(1);
+	}
+
+	void Window::insertCallback(std::function<void()> callback, int key) {
+		callbacks[key] = callback;
 	}
 
 	void Window::init() {
@@ -103,7 +91,7 @@ namespace bane {
 			return;
 		}
 
-		memset(m_Keys, false, MAX_KEYS); // Jijijija
+		memset(m_Keys, false, MAX_KEYS); 
 		memset(m_Buttons, false, MAX_BUTTONS);
 
 		glfwSetErrorCallback(error_callback);
@@ -129,23 +117,28 @@ namespace bane {
 		glfwSetKeyCallback(m_Window, key_callback);
 		glfwSetMouseButtonCallback(m_Window, mouse_callback);
 		glfwSetCursorPosCallback(m_Window, cursor_position_callback);
-		glfwSetJoystickCallback(joystick_callback);
 
 		glewInit();
 		glewExperimental = true;
-		ImGUIinit();
 
 	}
 
-	void Window::ImGUIinit() {
-		// INIT IMGUI //
+	void Window::initImGui() {
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		ImGuiIO& io = ImGui::GetIO(); (void)io; 
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-		ImGui::StyleColorsDark();
+		ImGui::StyleColorsDark();;
 		ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
-		ImGui_ImplOpenGL3_Init("#version 330");
+		ImGui_ImplOpenGL3_Init("#version 330"); //glsl version
+	}
+
+	void error_callback(int error, const char* description) {
+		fprintf(stderr, "Error: %s\n", description);
+	}
+
+	void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+		glViewport(0, 0, width, height);
 	}
 }
